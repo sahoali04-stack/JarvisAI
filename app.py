@@ -4,18 +4,28 @@ import os
 
 app = Flask(__name__)
 
-# Load API key from environment variable (SAFE METHOD)
+# Get API key from Render environment variables
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 def ask_ai(message):
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are Jarvis, a helpful assistant."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are Jarvis, an advanced AI assistant. "
+                        "You are extremely clear, structured, and helpful. "
+                        "You always give short, practical answers first, then details if needed. "
+                        "You behave like a professional assistant used in a business environment."
+                    )
+                },
                 {"role": "user", "content": message}
             ]
         )
+
         return response.choices[0].message.content
 
     except Exception as e:
@@ -36,4 +46,4 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000, debug=True)

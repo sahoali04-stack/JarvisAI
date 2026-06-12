@@ -1,21 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Jarvis AI</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #111827;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .msg {
+            max-width: 70%;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        .user {
+            background: #2563eb;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot {
+            background: #1f2937;
+            margin-right: auto;
+        }
+
+        .input-box {
+            display: flex;
+            padding: 10px;
+            background: #111827;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            background: #22c55e;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>Jarvis AI Chatbot</h1>
+<div class="header">🤖 Jarvis AI Assistant</div>
 
-<form method="POST">
-    <input type="text" name="message" placeholder="Type here..." required>
+<div class="chat">
+
+    {% if response %}
+        <div class="msg bot">{{ response }}</div>
+    {% endif %}
+
+</div>
+
+<form method="POST" class="input-box">
+    <input name="message" placeholder="Type your message..." required>
     <button type="submit">Send</button>
 </form>
-
-<hr>
-
-<h2>Response:</h2>
-<p>{{ response }}</p>
 
 </body>
 </html>
