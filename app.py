@@ -1,48 +1,53 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 import os
 
 app = Flask(__name__)
 
-# Get API key from Render environment variables
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# simple memory storage (per session, resets on restart)
+chat_history = []
 
 def ask_ai(message):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are Jarvis, an advanced AI assistant. "
-                        "You are extremely clear, structured, and helpful. "
-                        "You always give short, practical answers first, then details if needed. "
-                        "You behave like a professional assistant used in a business environment."
-                    )
-                },
-                {"role": "user", "content": message}
-            ]
-        )
+    global chat_history
 
-        return response.choices[0].message.content
+    chat_history.append({"role": "user", "content": message})
 
-    except Exception as e:
-        return f"Error: {str(e)}"
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are Jarvis, a professional AI assistant. "
+                    "You are clear, structured, helpful, and act like a SaaS business assistant."
+                )
+            },
+            *chat_history
+        ]
+    )
+
+    reply = response.choices[0].message.content
+
+    chat_history.append({"role": "assistant", "content": reply})
+
+    return reply
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
-    response = ""
+    return render_template("index.html")
 
-    if request.method == "POST":
-        user_message = request.form.get("message")
 
-        if user_message:
-            response = ask_ai(user_message)
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message")
 
-    return render_template("index.html", response=response)
+    reply = ask_ai(user_message)
+
+    return jsonify({"reply": reply})
 
 
 if __name__ == "__main__":

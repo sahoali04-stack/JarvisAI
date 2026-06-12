@@ -1,92 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Jarvis AI</title>
+<meta charset="UTF-8">
+<title>Jarvis AI</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b1220;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
 
-        .header {
-            background: #111827;
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
+.header {
+    background: #111827;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
 
-        .chat {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
+.chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .msg {
-            max-width: 70%;
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-        }
+.msg {
+    padding: 12px 15px;
+    border-radius: 12px;
+    max-width: 70%;
+}
 
-        .user {
-            background: #2563eb;
-            margin-left: auto;
-            text-align: right;
-        }
+.user {
+    background: #2563eb;
+    align-self: flex-end;
+}
 
-        .bot {
-            background: #1f2937;
-            margin-right: auto;
-        }
+.bot {
+    background: #1f2937;
+    align-self: flex-start;
+}
 
-        .input-box {
-            display: flex;
-            padding: 10px;
-            background: #111827;
-        }
+.typing {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-left: 5px;
+}
 
-        input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-        }
+.input-area {
+    display: flex;
+    padding: 10px;
+    background: #111827;
+}
 
-        button {
-            margin-left: 10px;
-            padding: 10px 15px;
-            background: #22c55e;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 12px 16px;
+    background: #22c55e;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #16a34a;
+}
+</style>
+
 </head>
 
 <body>
 
 <div class="header">🤖 Jarvis AI Assistant</div>
 
-<div class="chat">
+<div class="chat" id="chat"></div>
 
-    {% if response %}
-        <div class="msg bot">{{ response }}</div>
-    {% endif %}
-
+<div class="input-area">
+    <input id="input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
 </div>
 
-<form method="POST" class="input-box">
-    <input name="message" placeholder="Type your message..." required>
-    <button type="submit">Send</button>
-</form>
+<script>
+async function sendMessage() {
+    let input = document.getElementById("input");
+    let chat = document.getElementById("chat");
+
+    let message = input.value;
+    if (!message) return;
+
+    chat.innerHTML += `<div class="msg user">${message}</div>`;
+    input.value = "";
+
+    // typing indicator
+    let typing = document.createElement("div");
+    typing.className = "typing";
+    typing.innerHTML = "Jarvis is thinking...";
+    chat.appendChild(typing);
+
+    let response = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+    });
+
+    let data = await response.json();
+
+    chat.removeChild(typing);
+
+    chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+}
+</script>
 
 </body>
 </html>
