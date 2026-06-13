@@ -7,7 +7,7 @@
 
 <h2>Jarvis AI</h2>
 
-<input id="msg" placeholder="Ask something">
+<input id="msg" placeholder="Ask...">
 <button onclick="send()">Send</button>
 
 <pre id="out"></pre>
@@ -20,8 +20,10 @@ function send() {
         body: JSON.stringify({
             message: document.getElementById("msg").value
         })
-    }).then(r => r.json()).then(data => {
-        document.getElementById("out").innerText = data.reply;
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById("out").innerText = d.reply;
     });
 }
 </script>
