@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Register</h2>
+
+<input id="email" placeholder="email">
+<input id="password" type="password" placeholder="password">
+
+<button onclick="register()">Register</button>
+
+<script>
+function register() {
+    fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value
+        })
+    }).then(r => r.json()).then(data => {
+        alert(JSON.stringify(data));
+    });
+}
+</script>
+
+</body>
+</html>
