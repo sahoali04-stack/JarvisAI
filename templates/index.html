@@ -1,31 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Jarvis AI</title>
+<meta charset="UTF-8">
+<title>Jarvis AI</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b1220;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    background: #111827;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.msg {
+    padding: 12px 15px;
+    border-radius: 12px;
+    max-width: 70%;
+    word-wrap: break-word;
+    line-height: 1.5;
+}
+
+.user {
+    background: #2563eb;
+    align-self: flex-end;
+}
+
+.bot {
+    background: #1f2937;
+    align-self: flex-start;
+}
+
+.typing {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-left: 5px;
+}
+
+.input-area {
+    display: flex;
+    padding: 10px;
+    background: #111827;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+button {
+    margin-left: 10px;
+    padding: 12px 16px;
+    background: #22c55e;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+button:hover {
+    background: #16a34a;
+}
+</style>
+
 </head>
+
 <body>
 
-<h2>Jarvis AI</h2>
+<div class="header">🤖 Jarvis AI Assistant</div>
 
-<input id="msg" placeholder="Ask...">
-<button onclick="send()">Send</button>
+<div class="chat" id="chat"></div>
 
-<pre id="out"></pre>
+<div class="input-area">
+    <input id="input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
 
 <script>
-function send() {
-    fetch("/chat", {
+
+async function sendMessage() {
+
+    let input = document.getElementById("input");
+    let chat = document.getElementById("chat");
+
+    let message = input.value.trim();
+
+    if (!message) return;
+
+    // user message
+    chat.innerHTML += `
+        <div class="msg user">
+            ${message}
+        </div>
+    `;
+
+    input.value = "";
+
+    // typing indicator
+    let typing = document.createElement("div");
+    typing.className = "typing";
+    typing.innerHTML = "Jarvis is thinking...";
+    chat.appendChild(typing);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    // send request
+    let response = await fetch("/chat", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-            message: document.getElementById("msg").value
+            message: message
         })
-    })
-    .then(r => r.json())
-    .then(d => {
-        document.getElementById("out").innerText = d.reply;
     });
+
+    let data = await response.json();
+
+    // remove typing
+    chat.removeChild(typing);
+
+    // bot message
+    chat.innerHTML += `
+        <div class="msg bot">
+            ${data.reply}
+        </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
 }
+
+
+// ENTER KEY SUPPORT
+document.getElementById("input").addEventListener("keypress", function(event) {
+
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+
+});
+
 </script>
 
 </body>
